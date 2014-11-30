@@ -25,6 +25,17 @@ pages.each{ |page|
 	end
 }
 
+def make_title_pretty(title)
+	# Take the number out of it
+	title = remove_number_from_title(title)
+	# convert underscore case to normal spaces
+	title.gsub(/(^.|_.)/) { |s| s.gsub(/_/,' ').upcase }
+end
+
+def remove_number_from_title(title)
+	title.match(/^\d*_(.*)/)[1]
+end
+
 def generate_titles(active_title, titles) 
 	output = ''
 
@@ -37,15 +48,15 @@ def generate_titles(active_title, titles)
 			html.gsub!('{{HREF}}', '#')
 			text = "<ul>\n"
 			title[:subpages].each{ |subpage| 
-				text << "<li><a href=\""+subpage+".html\">"+subpage+"</a></li>\n"
+				text << "<li><a href=\""+remove_number_from_title(subpage)+".html\">"+make_title_pretty(subpage)+"</a></li>\n"
 			}
 			text << "</ul>"
 			html.gsub!('{{SUBPAGE}}', text)
 		else
-			html.gsub!('{{HREF}}', "#{title[:page]}.html")
+			html.gsub!('{{HREF}}', "#{remove_number_from_title(title[:page])}.html")
 			html.gsub!('{{SUBPAGE}}','')
 		end
-		html.gsub!('{{LINK}}', "#{title[:page]}")
+		html.gsub!('{{LINK}}', "#{make_title_pretty(title[:page])}")
 		output << html + "\n"
 	}
 
@@ -55,10 +66,11 @@ end
 combined_pages.each { |page|
 	title = page_to_titles[page]
 
-	# Create the dir if needed
+	# Clean up the title
 	if title =~ /\//
 		title = title.rpartition('/')[-1]
 	end
+	title = remove_number_from_title(title)
 
 	# Create the static html page
 	File.open(Dir.pwd+'/static_site/'+title+'.html', 'w') { |f| 
