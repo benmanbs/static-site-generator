@@ -54,6 +54,7 @@ def make_title_pretty(title)
 	# Take the number out of it
 	title = remove_number_from_title(title)
 	# convert underscore case to normal spaces
+	title = "home" if title == 'index'
 	title.gsub(/(^.|_.)/) { |s| s.gsub(/_/,' ').upcase }
 end
 
