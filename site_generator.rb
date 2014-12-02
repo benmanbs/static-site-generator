@@ -115,6 +115,8 @@ combined_pages.each { |page|
 					f.write(generate_titles(title, titles))
 				elsif line =~ /\{\{CONTENT\}\}/
 					f.write(content)
+				elsif line =~ /\{\{IMAGE\}\}/
+					f.write(line.gsub('{{IMAGE}}',title))
 				else
 					f.write(line)
 				end
