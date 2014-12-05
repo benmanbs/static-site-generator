@@ -69,9 +69,9 @@ def generate_titles(active_title, titles)
 		html = '<li{{ACTIVE}}>
 			          <a href="{{HREF}}">{{LINK}}</a>{{SUBPAGE}}
 			        </li>'
-		html.gsub!('{{ACTIVE}}', active_title == title[:page] ? ' class="active"' : '')
+		html.gsub!('{{ACTIVE}}', active_title == remove_number_from_title(title[:page]) ? ' class="active"' : '')
 		if title[:subpages]
-			html.gsub!('{{HREF}}', '#')
+			html.gsub!('{{HREF}}', "#{remove_number_from_title(title[:subpages].first)}.html")
 			text = "<ul>\n"
 			title[:subpages].each{ |subpage| 
 				text << "<li><a href=\""+remove_number_from_title(subpage)+".html\">"+make_title_pretty(subpage)+"</a></li>\n"
@@ -96,6 +96,15 @@ combined_pages.each { |page|
 	if title =~ /\//
 		title = title.rpartition('/')[-1]
 	end
+
+	# find if it's a subpage and find the parent for that page
+	page_parent = false
+	titles.each{ |page_title|
+		if(page_title[:subpages] && page_title[:subpages].include?(title))
+			page_parent = remove_number_from_title(page_title[:page])
+		end
+	}
+
 	title = remove_number_from_title(title)
 
 	# Create the static html page
@@ -112,7 +121,7 @@ combined_pages.each { |page|
 		File.open(template_file, 'r') { |file|
 			file.each_line { |line|
 				if line =~ /\{\{HEADER\}\}/
-					f.write(generate_titles(title, titles))
+					f.write(generate_titles(page_parent ? page_parent : title, titles))
 				elsif line =~ /\{\{CONTENT\}\}/
 					f.write(content)
 				elsif line =~ /\{\{IMAGE\}\}/
